@@ -27,7 +27,7 @@ SECRET_KEY = 'django-insecure-nw^y+m^wmxza1asgk+)!ua2qx9)g+#v=6%76-9i8i(6eqiw94j
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = environ.get('ALLOWED_HOSTS').split(' ')
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.postgres',
 
     'rest_framework',
 
@@ -84,11 +85,11 @@ WSGI_APPLICATION = 'stocks_products.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': environ.get('POSTGRES_ENGINE','django.db.backends.sqlite3'),
-        'NAME': environ.get('POSTGRES_DB', BASE_DIR/'db.sqlite3'),
-        'HOST': environ.get('POSTGRES_HOST', 'localhost'),
+        'ENGINE': environ.get('POSTGRES_ENGINE','django.db.backends.postgresql'),
+        'NAME': environ.get('POSTGRES_DB', 'netology_stocks_products'),
+        'HOST': environ.get('POSTGRES_HOST', 'dockercompose-db-1'),
         'PORT': environ.get('POSTGRES_PORT', '5432'),
-        'USER': environ.get('POSTGRES_USER', 'my_user'),
+        'USER': environ.get('POSTGRES_USER', 'postgres'),
         'PASSWORD': environ.get('POSTGRES_PASSWORD', '1234'),
     }
 }

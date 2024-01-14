@@ -2,10 +2,29 @@ version: '3.8'
 
 
 services:
+    db:
+        image: "postgres:latest"
+            
+        volumes:
+            - postgres_volume:/var/lib/postgresql/data/
+        env_file:
+            - ./.env.dev
+                
+        networks:
+            - my_net 
+            - test_net
+        healthcheck:
+            test: ["CMD-SHELL","pg_isready -U admin1 -d new_db"]
+            interval: 1m30s
+            timeout: 30s
+            retries: 5
+            start_period: 30s
+    
     web:
         build: ./app 
-        command: gunicorn stocks_products.wsgi:application --bind 0.0.0.0:8000    
-        #command: python manage.py runserver 0.0.0.0:8000
+        #command: gunicorn stocks_products.wsgi:application --bind 0.0.0.0:8000   
+        command: sh ./com.sh
+
         volumes:
             - static_volume:/usr/src/app/static
             - media_volume:/usr/src/app/media
@@ -20,18 +39,7 @@ services:
         depends_on:
             - db
    
-    db:
-        image: "postgres:latest"
-        
-        volumes:
-            - postgres_volume:/var/lib/postgresql/data/
-        env_file:
-            - ./.env.dev
-            #- ./logs:/var/logs
-            #- .:/docker-entrypoint-initdb.db
-            #- pgdata: /var/lib/podtgresql/data
-        networks:
-            - my_net 
+
 
             
     nginx:
@@ -45,6 +53,24 @@ services:
             - web
         networks:
             - my_net 
+
+    pg_admin:
+        image: "dpage/pgadmin4:latest"
+        ports:
+            - 7070:80
+        restart: unless-stopped
+        deploy:
+            resources:
+                limits:
+                    cpus: '0.5'
+                    memory: 1G
+        environment:
+            PGADMIN_DEFAULT_EMAIL: "admin@yandex.ru"
+            PGADMIN_DEFAULT_PASSWORD: "admin1pwd"
+            PGADMIN_DEFAULT_CONFIG_SERVER_MODE: "False"
+        networks:
+            - test_net
+
 volumes:
     postgres_volume: 
     static_volume:
@@ -52,3 +78,4 @@ volumes:
     
 networks:
     my_net:
+    test_net:
